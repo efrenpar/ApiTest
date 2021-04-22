@@ -1,4 +1,3 @@
-const e = require('express');
 const oracledb = require('oracledb');
 const config = require('../config/conect')
 const nemo = {
