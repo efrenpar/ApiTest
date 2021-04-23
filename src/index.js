@@ -17,8 +17,6 @@ app.get("/", (req, res) => {
     res.json({ message: "app works" });
 });
 
-
-
 //routes
 app.use(transaccionRoute);
 

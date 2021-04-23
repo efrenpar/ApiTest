@@ -23,6 +23,22 @@ const data={
     numPE:null,
 }
 
+const tipo=["COTIZACION","FACTURA"]
+
+setResponse = (code,succes,message,data)=>{
+
+    var response = {
+        code:code,
+        succes:succes,
+        message:message,
+        data:data
+    }
+
+    return response;
+}
+
 exports.nemo = nemo;
 exports.response = response;
 exports.data = data;
+exports.setResponse = setResponse;
+exports.tipo = tipo;
