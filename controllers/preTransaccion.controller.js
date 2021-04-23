@@ -18,13 +18,15 @@ const data= constants.data;
             if(Object.keys(req.body).length===0){
                 response = constants.setResponse(400,false,"No hay cuerpo",[]);
                 res.status(400).send(response);
-            }else if(req.params.codigoEmpres<0 || constants.tipo.indexOf(req.params.tipoPreTransaccion)==-1 ){
+            }else if(req.params.codigoEmpresa<0 || constants.tipo.indexOf(req.params.tipoPreTransaccion)==-1 ){
                 response = constants.setResponse(400,false,"Los parametros enviados por url, no son validos",[]);
                 res.status(400).send(response);
             }
             else {
                 data.secuencia=req.body.secuenciaUsuario;
                 data.tipo = req.params.tipoPreTransaccion;
+                data.codigoE = req.params.codigoEmpresa;
+                
                 if (req.body.nemonicoCanalFacturacion=='CAJA')   
                     data.nemo=nemo.CAJA;
                 else if (req.body.nemonicoCanalFacturacion=='KIOSKO')   
