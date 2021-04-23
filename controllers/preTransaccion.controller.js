@@ -4,92 +4,88 @@ const constants = require('../constants/constants');
 const queries = require('../sql/queries');
 
 
-const nemo = constants.nemo;
-var response=constants.response;
-const data= constants.data;
+const nemonicoCanalFacturacion = constants.nemonicoCanalFacturacion;
+var mensaje =constants.mensaje ;
+const model= constants.model;
 
 
 
- const inicializar= async (req,res) =>{
+ const crear = async (req,res) =>{
     if(req.headers!=null){
-        data.usuarioI = new Date();
+        model.usuarioIngreso = new Date();
         
         if (req.headers['application']=="UEhBTlRPTVhfV0VC" && req.headers['idorganizacion']=="365509c8-9596-4506-a5b3-487782d5876e"){
             if(Object.keys(req.body).length===0){
-                response = constants.setResponse(400,false,"No hay cuerpo",[]);
-                res.status(400).send(response);
+                mensaje  = constants.setResponse(400,false,"No hay cuerpo",[]);
+                res.status(400).send(mensaje );
             }else if(req.params.codigoEmpresa<0 || constants.tipo.indexOf(req.params.tipoPreTransaccion)==-1 ){
-                response = constants.setResponse(400,false,"Los parametros enviados por url, no son validos",[]);
-                res.status(400).send(response);
+                mensaje  = constants.setResponse(400,false,"Los parametros enviados por url, no son validos",[]);
+                res.status(400).send(mensaje );
             }
             else {
-                data.secuencia=req.body.secuenciaUsuario;
-                data.tipo = req.params.tipoPreTransaccion;
-                data.codigoE = req.params.codigoEmpresa;
+                model.secuenciaUsaurio=req.body.secuenciaUsuario;
+                model.tipo = req.params.tipoPreTransaccion;
+                model.codigoEmpresa = req.params.codigoEmpresa;
                 
                 if (req.body.nemonicoCanalFacturacion=='CAJA')   
-                    data.nemo=nemo.CAJA;
+                    model.nemonicoCanalFacturacion=nemonicoCanalFacturacion.CAJA;
                 else if (req.body.nemonicoCanalFacturacion=='KIOSKO')   
-                    data.nemo=nemo.KIOSKO;
+                    model.nemonicoCanalFacturacion=nemonicoCanalFacturacion.KIOSKO;
                 else{  
-                    response = constants.setResponse(400,"El campo nemonico no es valido","No Data Found")
-                    res.status(400).send(response)
+                    mensaje  = constants.setResponse(400,false,"El campo nemonico no es valido","No Data Found")
+                    res.status(400).send(mensaje )
                 }
 
                 try{
-                    var connection = await oracledb.getConnection(config);
-                    let resp = await connection.execute(queries.getUsuario(data.secuencia))
-                    if(resp.rows.length>0){
+                    var BD = await oracledb.getConnection(config);
+                    let result = await BD.execute(queries.getUsuario(model.secuenciaUsaurio))
+                    if(result.rows.length>0){
                         
-                        data.codigoE=resp.rows[0][1]; 
-                        data.codigoU=resp.rows[0][4];
-                        data.activo=resp.rows[0][27];
-                        resp=await connection.execute(queries.getEmpresas(data.codigoE))
-                        data.codigoE=resp.rows[0][0];
-                        resp= await connection.execute(queries.getSecuenciaTransaccion());
-                        if(resp.rows.length>0){
+                        model.codigoEmpresa=result.rows[0][1]; 
+                        model.codigoUsuario=result.rows[0][4];
+                        model.activo=result.rows[0][27];
+                        result=await BD.execute(queries.getEmpresas(model.codigoEmpresa))
+                        model.codigoEmpresa=result.rows[0][0];
+                        result= await BD.execute(queries.getSecuenciaTransaccion());
+                        if(result.rows.length>0){
                             
-                            data.codigoPre=resp.rows[0][0];
+                            model.codigoPreTrans=result.rows[0][0];
                             if(Object.keys(req.body.caja).length!==0){
-                                console.log('tiene datos')
                                 console.log(req.body.caja)
-                                resp= await connection.execute(queries.insertTransaccionConCaja(),
-                                [data.codigoPre, data.codigoE,req.body.caja.codigoSucursal,req.body.caja.codigoCaja,req.body.caja.numeroPuntoEmision ,data.secuencia, data.codigoU, data.tipo, data.nemo, data.activo, data.secuencia, data.codigoU, data.usuarioI],{ autoCommit: true } ); 
-                                response = constants.setResponse(0,true,"Se ingreso La pre_transaccion",{"idPreTransaccion":data.codigoPre});
-                                res.status(200).send(response);
-                                connection.close()
+                                result= await BD.execute(queries.insertTransaccionConCaja(),
+                                [model.codigoPreTrans, model.codigoEmpresa,req.body.caja.codigoSucursal,req.body.caja.codigoCaja,req.body.caja.numeroPuntoEmision ,model.secuenciaUsaurio, model.codigoUsuario, model.tipo, model.nemonicoCanalFacturacion, model.activo, model.secuenciaUsaurio, model.codigoUsuario, model.usuarioIngreso],{ autoCommit: true } ); 
+                                mensaje  = constants.setResponse(200,true,"Se ingreso La pre_transaccion",{"idPreTransaccion":model.codigoPreTrans});
+                                res.status(200).send(mensaje );
+                                BD.close()
                             }else{
-                                console.log('no tiene datos')
-                                resp= await connection.execute(queries.insertTransaccionSinCaja(),
-                                [data.codigoPre, data.codigoE, data.secuencia, data.codigoU, data.tipo, data.nemo, data.activo, data.secuencia, data.codigoU, data.usuarioI],{ autoCommit: true } ); 
-                                response = constants.setResponse(0,true,"Se ingreso La pre_transaccion",{"idPreTransaccion":data.codigoPre});
-                                res.status(200).send(response);
-                                connection.close()
+                                result= await BD.execute(queries.insertTransaccionSinCaja(),
+                                [model.codigoPreTrans, model.codigoEmpresa, model.secuenciaUsaurio, model.codigoUsuario, model.tipo, model.nemonicoCanalFacturacion, model.activo, model.secuenciaUsaurio, model.codigoUsuario, model.usuarioIngreso],{ autoCommit: true } ); 
+                                mensaje  = constants.setResponse(200,true,"Se ingreso La pre_transaccion",{"idPreTransaccion":model.codigoPreTrans});
+                                res.status(200).send(mensaje );
+                                BD.close()
                             }
-                        }else{
-                            connection.commit(); 
-                            connection.close(); 
-                            response = constants.setResponse(500,false,"Ha ocurrido un error inesperado.",resp); 
-                            res.status(500).send(response);
+                        }else{ 
+                            BD.close(); 
+                            mensaje  = constants.setResponse(500,false,"Ha ocurrido un error inesperado.",result); 
+                            res.status(500).send(mensaje );
                         }
                     }else{
-                        connection.commit()
-                        connection.close()
-                        response = constants.setResponse(500,false,"Ha ocurrido un error inesperado.","No Data found");
-                        res.status(500).send(response);
+                        BD.close()
+                        mensaje  = constants.setResponse(500,false,"Ha ocurrido un error inesperado.","No Data found");
+                        res.status(500).send(mensaje );
                     }
                 }catch(error){
-                    response.Data=[error.message];
-                    res.send(response);
+                    mensaje.data=[error.message];
+                    res.send(mensaje );
                 }
                 
             }
         }else{
-            response = constants.setResponse(401,false,"Las cedenciales de autenticación no son válidas.",[]);
-            res.status(401).send(response);
+            mensaje  = constants.setResponse(401,false,"Las cedenciales de autenticación no son válidas.",[]);
+            res.status(401).send(mensaje );
         }
     }
 
 }
 
-exports.inicializar=inicializar;
+exports.crear=crear;
