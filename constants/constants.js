@@ -34,8 +34,14 @@ setResponse = (code,succes,message,data)=>{
     return mensaje;
 }
 
+const idorganizacion = "365509c8-9596-4506-a5b3-487782d5876e";
+
+const application = "UEhBTlRPTVhfV0VC";
+
 exports.nemonicoCanalFacturacion = nemonicoCanalFacturacion;
 exports.mensaje = mensaje;
 exports.model = model;
 exports.setResponse = setResponse;
 exports.tipo = tipo;
+exports.application = application;
+exports.idorganizacion = idorganizacion;

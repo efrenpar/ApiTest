@@ -3,6 +3,8 @@ const config = require('../config/conect');
 const constants = require('../constants/constants');
 const queries = require('../sql/queries');
 
+const idOrganizacion = constants.idorganizacion;
+const App = constants.application;
 
 const nemonicoCanalFacturacion = constants.nemonicoCanalFacturacion;
 var mensaje =constants.mensaje ;
@@ -14,7 +16,7 @@ const model= constants.model;
     if(req.headers!=null){
         model.usuarioIngreso = new Date();
         
-        if (req.headers['application']=="UEhBTlRPTVhfV0VC" && req.headers['idorganizacion']=="365509c8-9596-4506-a5b3-487782d5876e"){
+        if (req.headers['application']==App && req.headers['idorganizacion']==idOrganizacion){
             if(Object.keys(req.body).length===0){
                 mensaje  = constants.setResponse(400,false,"No hay cuerpo",[]);
                 res.status(400).send(mensaje );
