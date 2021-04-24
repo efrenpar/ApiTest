@@ -60,11 +60,9 @@ const model= constants.model;
                                 res.status(200).send(mensaje );
                                 BD.close()
                             }else{
-                                result= await BD.execute(queries.insertTransaccionSinCaja(),
-                                [model.codigoPreTrans, model.codigoEmpresa, model.secuenciaUsaurio, model.codigoUsuario, model.tipo, model.nemonicoCanalFacturacion, model.activo, model.secuenciaUsaurio, model.codigoUsuario, model.usuarioIngreso],{ autoCommit: true } ); 
-                                mensaje  = constants.setResponse(200,true,"Se ingreso La pre_transaccion",{"idPreTransaccion":model.codigoPreTrans});
-                                res.status(200).send(mensaje );
-                                BD.close()
+                                BD.close();
+                                mensaje = constants.setResponse(400,false,"no se ingreso caja",[]); 
+                                res.status(400).send(mensaje)
                             }
                         }else{ 
                             BD.close(); 
@@ -77,7 +75,7 @@ const model= constants.model;
                         res.status(500).send(mensaje );
                     }
                 }catch(error){
-                    mensaje.data=[error.message];
+                    mensaje = constants.setResponse(400,false,"error base de datos",error.message);
                     res.send(mensaje );
                 }
                 
